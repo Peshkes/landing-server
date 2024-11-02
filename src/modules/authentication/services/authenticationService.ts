@@ -1,21 +1,21 @@
-import User from "../models/userModel";
-import {UserData} from "../types";
-import Role from "../models/roleModel";
+import UserModel from "../models/userModel";
+import {User, UserData} from "../types";
+import RoleModel from "../models/roleModel";
 import bcrypt from "bcryptjs";
 
-export const registrateUser = async (userData: UserData) => {
+export const registrateUser = async (userData: UserData): Promise<User> => {
     try {
         const { name, email, password} = userData;
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await UserModel.findOne({ email });
         if (existingUser) throw new Error("Email уже занят");
 
-        const role = await Role.findOne({ name: "user" });
+        const role = await RoleModel.findOne({ name: "user" });
         if (!role) throw new Error("Роль пользователя не найдена");
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = new User({
+        const newUser = new UserModel({
             name,
             email,
             password: hashedPassword,
@@ -23,6 +23,7 @@ export const registrateUser = async (userData: UserData) => {
         });
 
         await newUser.save();
+
         return newUser;
     } catch (error: any) {
         throw new Error(`Ошибка при создании пользователя: ${error.message}`);

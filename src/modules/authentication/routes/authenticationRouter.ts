@@ -17,4 +17,6 @@ authenticationRouter.post("/registration", async (req, res) => {
     }
 });
 
+
+
 export default authenticationRouter;

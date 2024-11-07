@@ -8,17 +8,19 @@ import {
     getAllAccounts,
     registrateUser
 } from "../services/authenticationService";
+import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/JWTServise";
+import {jwtUserRequestFilter} from "../services/JwtRequestFilter";
+
+
 
 
 const csrfToken = csurf();
 const authenticationRouter = express.Router();
 
 
-
 authenticationRouter.get("/csrf", csrfToken, async (req, res) => {
     res.json({csrfToken: req.csrfToken()});
 });
-
 
 authenticationRouter.post("/registration", async (req, res) => {
     const {name, email, password} = req.body;
@@ -39,23 +41,40 @@ authenticationRouter.post("/signin", async (req, res) => {
 
     try {
         const response = await signIn({email, password});
-        res.status(201).json({
-            message: "Пользователь зарегистрирован",
-            cookie: [response.accessToken, response.refreshToken]
-        });
+        res.status(201)
+            .cookie("accessToken", response.accessToken, {
+                expires: new Date(Date.now() + ACCESS_EXPIRATION_TIME * 1000),
+                httpOnly: true
+            })
+            .cookie("refreshToken", response.refreshToken, {
+                expires: new Date(Date.now() + REFRESH_EXPIRATION_TIME * 1000),
+                httpOnly: true
+            })
+            .json({
+                message: "Пользователь зарегистрирован"
+            });
     } catch (error: any) {
         res.status(400).json({message: error.message});
     }
 });
 
-authenticationRouter.post("/refresh", async (req, res) => {
+authenticationRouter.post("/refresh",jwtUserRequestFilter, async (req, res) => {
+
     const token: string = req.cookies.refreshToken;
     try {
         const response = await refreshToken(token);
-        res.status(201).json({
-            message: "Пользователь зарегистрирован. Токен успешнр обновлен",
-            cookie: [response.accessToken, response.refreshToken]
-        });
+        res.status(201)
+            .cookie("accessToken", response.accessToken, {
+                expires: new Date(Date.now() + ACCESS_EXPIRATION_TIME * 1000),
+                httpOnly: true
+            })
+            .cookie("refreshToken", response.refreshToken, {
+                expires: new Date(Date.now() + REFRESH_EXPIRATION_TIME * 1000),
+                httpOnly: true
+            })
+            .json({
+                message: "Пользователь зарегистрирован. Токен успешнр обновлен"
+            });
     } catch (error: any) {
         res.status(400).json({message: error.message});
     }
@@ -63,9 +82,8 @@ authenticationRouter.post("/refresh", async (req, res) => {
 
 authenticationRouter.post("/logout", async (req, res) => {
     try {
-        res.status(201).json({
-            message: "Пользователь вышел из аккаунта",
-            cookie: null
+        res.status(201).clearCookie("accessToken").clearCookie("refreshToken").json({
+            message: "Пользователь вышел из аккаунта"
         });
     } catch (error: any) {
         res.status(400).json({message: error.message});
@@ -98,7 +116,7 @@ authenticationRouter.get("/allusers", async (req, res) => {
 });
 
 authenticationRouter.delete("/:id", async (req, res) => {
-    const { id } = req.params;
+    const {id} = req.params;
     try {
         const account = await deleteAccountById(id);
         res.status(200).json({
@@ -111,8 +129,8 @@ authenticationRouter.delete("/:id", async (req, res) => {
 });
 
 authenticationRouter.put("/:id", async (req, res) => {
-    const { id } = req.params;
-    const { newPassword } = req.body;
+    const {id} = req.params;
+    const {newPassword} = req.body;
     try {
         await changePassword(id, newPassword);
         res.status(201).json({

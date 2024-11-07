@@ -35,28 +35,40 @@ const registrateUser = async (userData: UserData): Promise<AuthenticationResult>
 };
 
 const getAccountByEmailOrId = async (obj: string): Promise<PublicUserData> => {
-    const account: User | null = await UserModel.findOne({obj});
-    if (!account) throw new Error("Пользователся с таким имейлом не найдено");
-    return {email: account.email, name: account.name, _id: account._id, role: account.role};
+    try {
+        const account: User | null = await UserModel.findOne({obj});
+        if (!account) throw new Error("Пользователся с таким имейлом не найдено");
+        return {email: account.email, name: account.name, _id: account._id, role: account.role};
+    } catch (error: any) {
+        throw new Error(`Ошибка при получении аккаунта: ${error.message}`);
+    }
 };
 
 const getAllAccounts = async (): Promise<PublicUserData[]> => {
-    const accounts: User[] = await UserModel.find({});
-    if (accounts.length == 0) throw new Error("Ни одного аккаунта не найдено ");
-    return accounts.map(user => ({
-        email: user.email, name: user.name, _id: user._id, role: user.role
-    }));
+    try {
+        const accounts: User[] = await UserModel.find({});
+        if (accounts.length == 0) throw new Error("Ни одного аккаунта не найдено ");
+        return accounts.map(user => ({
+            email: user.email, name: user.name, _id: user._id, role: user.role
+        }));
+    } catch (error: any) {
+        throw new Error(`Ошибка при получении списка аккаунтов: ${error.message}`);
+    }
 };
 
 const deleteAccountById = async (id: string): Promise<PublicUserData> => {
-    const account: User | null = await UserModel.findByIdAndDelete({id});
-    if (!account) throw new Error("Пользователь не найден");
-    return {email: account.email, name: account.name, _id: account._id, role: account.role};
+    try {
+        const account: User | null = await UserModel.findByIdAndDelete({id});
+        if (!account) throw new Error("Пользователь не найден");
+        return {email: account.email, name: account.name, _id: account._id, role: account.role};
+    } catch (error: any) {
+        throw new Error(`Ошибка при удалении аккаунта: ${error.message}`);
+    }
 };
 
 const changePassword = async (obj: string, newPassword: string): Promise<void> => {
-    if (!passwordIsValid(newPassword)) throw new Error("Паррот должен сожержать на менее 8 символов, включая заглавную букву, цифру, спетциальный символ (@$!%*?&)");
     try {
+        if (!passwordIsValid(newPassword)) throw new Error("Пароль должен сожержать на менее 8 символов, включая заглавную букву, цифру, спетциальный символ (@$!%*?&)");
         const account: User | null = await UserModel.findOne({obj});
         if (!account) throw new Error("Пользователь не найден");
         if (await bcrypt.compare(newPassword, account.password))

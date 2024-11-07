@@ -1,8 +1,7 @@
-import {AuthenticationData, AuthenticationResult, User} from "../types";
+import {AuthenticationData, AuthenticationResult, JwtTokenPayload, User} from "../types";
 import bcrypt from "bcryptjs";
 import UserModel from "../models/userModel";
 import {generateTokenPair, verifyToken} from "../../../shared/JWTServise";
-
 
 
 const signIn = async (authenticationData: AuthenticationData): Promise<AuthenticationResult> => {
@@ -17,13 +16,13 @@ const signIn = async (authenticationData: AuthenticationData): Promise<Authentic
     const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordCorrect) throw new Error("Неверный пароль");
 
-    return generateTokenPair(existingUser._id, existingUser.role);
+    return generateTokenPair(existingUser._id.toString(), existingUser.role);
 };
 
 
 const refreshToken = async (token: string) => {
     if (!token) throw new Error("Токен не пришел ");
-    const decodedToken = verifyToken(token);
+    const decodedToken:JwtTokenPayload = verifyToken(token, true);
     return generateTokenPair(decodedToken.userId, decodedToken.role);
 };
 

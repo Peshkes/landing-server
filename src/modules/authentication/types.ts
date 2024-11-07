@@ -26,3 +26,18 @@ export type AuthenticationResult = {
     accessToken: string;
     refreshToken: string;
 }
+
+export type CustomCookies = {
+    cookies: {
+        accessToken: string;
+        refreshToken: string;
+    }
+}
+
+export type JwtTokenPayload = {
+    userId: string;
+    role: string;
+}
+
+
+

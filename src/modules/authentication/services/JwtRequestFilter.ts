@@ -1,5 +1,5 @@
 import {JwtTokenPayload} from "../types";
-import {verifyToken} from "../../../shared/JWTServise";
+import {verifyToken} from "../../../shared/jwtService";
 import {RequestHandler} from "express";
 import {Request} from "express-serve-static-core";
 

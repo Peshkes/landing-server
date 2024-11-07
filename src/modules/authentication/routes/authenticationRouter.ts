@@ -1,5 +1,4 @@
 import express from "express";
-import csurf from "csurf";
 import {refreshToken, signIn} from "../services/authenticationJWTService";
 import {
     changePassword,
@@ -8,21 +7,19 @@ import {
     getAllAccounts,
     registrateUser
 } from "../services/authenticationService";
-import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/JWTServise";
+import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/jwtService";
 import {jwtUserRequestFilter} from "../services/JwtRequestFilter";
+import {doubleCsrfProtection, generateToken} from "../../../shared/csrfConfig";
 
 
-
-
-const csrfToken = csurf();
 const authenticationRouter = express.Router();
 
 
-authenticationRouter.get("/csrf", csrfToken, async (req, res) => {
-    res.json({csrfToken: req.csrfToken()});
+authenticationRouter.get("/csrf", async (req, res) => {
+    res.json({csrfToken: generateToken(req, res)});
 });
 
-authenticationRouter.post("/registration", async (req, res) => {
+authenticationRouter.post("/registration", doubleCsrfProtection,async (req, res) => {
     const {name, email, password} = req.body;
 
     try {
@@ -36,7 +33,7 @@ authenticationRouter.post("/registration", async (req, res) => {
     }
 });
 
-authenticationRouter.post("/signin", async (req, res) => {
+authenticationRouter.post("/signin", doubleCsrfProtection,async (req, res) => {
     const {email, password} = req.body;
 
     try {
@@ -58,7 +55,7 @@ authenticationRouter.post("/signin", async (req, res) => {
     }
 });
 
-authenticationRouter.post("/refresh",jwtUserRequestFilter, async (req, res) => {
+authenticationRouter.post("/refresh", doubleCsrfProtection, jwtUserRequestFilter, async (req, res) => {
 
     const token: string = req.cookies.refreshToken;
     try {
@@ -80,7 +77,7 @@ authenticationRouter.post("/refresh",jwtUserRequestFilter, async (req, res) => {
     }
 });
 
-authenticationRouter.post("/logout", async (req, res) => {
+authenticationRouter.post("/logout",doubleCsrfProtection, async (req, res) => {
     try {
         res.status(201).clearCookie("accessToken").clearCookie("refreshToken").json({
             message: "Пользователь вышел из аккаунта"
@@ -90,7 +87,7 @@ authenticationRouter.post("/logout", async (req, res) => {
     }
 });
 
-authenticationRouter.get("/:obj", async (req, res) => {
+authenticationRouter.get("/:obj",doubleCsrfProtection, async (req, res) => {
     const {obj} = req.params;
     try {
         const account = await getAccountByEmailOrId(obj);
@@ -103,7 +100,7 @@ authenticationRouter.get("/:obj", async (req, res) => {
     }
 });
 
-authenticationRouter.get("/allusers", async (req, res) => {
+authenticationRouter.get("/allusers",doubleCsrfProtection, async (req, res) => {
     try {
         const accounts = await getAllAccounts();
         res.status(201).json({
@@ -115,7 +112,7 @@ authenticationRouter.get("/allusers", async (req, res) => {
     }
 });
 
-authenticationRouter.delete("/:id", async (req, res) => {
+authenticationRouter.delete("/:id",doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     try {
         const account = await deleteAccountById(id);
@@ -128,7 +125,7 @@ authenticationRouter.delete("/:id", async (req, res) => {
     }
 });
 
-authenticationRouter.put("/:id", async (req, res) => {
+authenticationRouter.put("/:id",doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     const {newPassword} = req.body;
     try {

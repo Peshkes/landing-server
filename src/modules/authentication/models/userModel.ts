@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -19,11 +20,13 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     roles: {
-        type: mongoose.Schema.Types.ObjectId,
+        // type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "Role",
         required: true
     }
 });
 
 const UserModel = mongoose.model("User", userSchema);
+
 export default UserModel;

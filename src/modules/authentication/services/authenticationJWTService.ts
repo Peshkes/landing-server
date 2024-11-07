@@ -1,7 +1,7 @@
 import {AuthenticationData, AuthenticationResult, JwtTokenPayload, User} from "../types";
 import bcrypt from "bcryptjs";
 import UserModel from "../models/userModel";
-import {generateTokenPair, verifyToken} from "../../../shared/JWTServise";
+import {generateTokenPair, verifyToken} from "../../../shared/jwtService";
 
 
 const signIn = async (authenticationData: AuthenticationData): Promise<AuthenticationResult> => {

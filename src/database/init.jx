@@ -1,2 +1,0 @@
-
-const db = db.getSiblingDB("your_database");

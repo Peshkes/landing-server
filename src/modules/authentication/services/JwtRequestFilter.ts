@@ -1,40 +1,57 @@
-import {JwtTokenPayload} from "../types";
+import {FilterResponse, Roles} from "../types";
 import {verifyToken} from "../../../shared/jwtService";
-import {RequestHandler} from "express";
+import {NextFunction, RequestHandler} from "express";
 import {Request} from "express-serve-static-core";
+import UserModel from "../models/userModel";
 
 
-export const jwtUserRequestFilter: RequestHandler = (req, res, next: () => void): void => {
-    const role: string | undefined = jwtRequestFilter(req);
-    if (role && role === "user")
-        next();
+export const checkOwnerFilter: RequestHandler = async (req, res, next: NextFunction) => {
+    const accessToken = req.cookies.accessToken;
+    try {
+        const jwtDecoded = verifyToken(accessToken, false);
+        const user = await UserModel.findById(jwtDecoded.userId);
+        if(user && user._id.toString() === req.path.split("/")[req.path.split("/").length-1])
+            next();
+    } catch (error: any) {
+        return {response: false, error: error.message, id: undefined};
+    }
 };
 
-export const jwtAdminRequestFilter: RequestHandler = (req, res, next: () => void): void => {
-    const role: string | undefined = jwtRequestFilter(req);
-    if (role && role === "admin")
-        next();
+export const jwtUserRequestFilter: RequestHandler = async (req, res, next: NextFunction) => {
+    const result = await jwtRequestFilter(req, Roles.USER);
+    if (result){
+        result.response ? next() : res.status(401).json({message: result.error});
+    }
+
 };
 
-export const jwtModeratorRequestFilter: RequestHandler = (req, res, next: () => void): void => {
-    const role: string | undefined = jwtRequestFilter(req);
-    if (role && role === "moderator")
-        next();
+export const jwtAdminRequestFilter: RequestHandler = async (req, res, next: NextFunction) => {
+    const result = await jwtRequestFilter(req, Roles.ADMIN);
+    if (result)
+        result.response ? next() : res.status(401).json({message: result.error});
+};
+
+export const jwtModeratorRequestFilter: RequestHandler = async (req, res, next: NextFunction) => {
+    const result = await jwtRequestFilter(req, Roles.MODERATOR);
+    if (result)
+        result.response ? next() : res.status(401).json({message: result.error});
 };
 
 
-const jwtRequestFilter = (req: Request): string | undefined => {
-    if (checkEndpoint(req.method, req.url)) {
-        const accessToken = req.cookies.accessToken;
-        if (accessToken) {
-            let jwtDecoded: JwtTokenPayload;
-            try {
-                jwtDecoded = verifyToken(accessToken, false);
-            } catch (error: any) {
-                throw new Error(error.message);
-            }
-            return jwtDecoded.role;
-        }
+const jwtRequestFilter = async (req: Request, minRole: Roles): Promise<FilterResponse | undefined> => {
+    if (!checkEndpoint(req.method, req.url)) return {response: true, error: undefined, id: undefined};
+    const accessToken = req.cookies.accessToken;
+    try {
+        const jwtDecoded = verifyToken(accessToken, false);
+        const user = await UserModel.findById(jwtDecoded.userId);
+        if (!user) return {response: false, error: "Пользователь не найден", id: undefined};
+        if (user.superUser && !user.groups) return {response: true, error: undefined, id: user._id.toString()};
+        const role = user.groups && user.groups.role;
+        return role && role >= minRole ?
+            {response: true, error: undefined, id: user._id.toString()} :
+            {response: false, error: "Доступ запрещен",id: undefined};
+    } catch (error: any) {
+        return {response: false, error: error.message, id: undefined};
     }
 };
 

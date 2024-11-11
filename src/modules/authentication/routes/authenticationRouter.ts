@@ -8,34 +8,39 @@ import {
     registrateUser
 } from "../services/authenticationService";
 import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/jwtService";
-import {jwtUserRequestFilter} from "../services/JwtRequestFilter";
+import {checkOwnerFilter, jwtAdminRequestFilter, jwtUserRequestFilter} from "../services/JwtRequestFilter";
 import {doubleCsrfProtection, generateToken} from "../../../shared/csrfConfig";
+
 
 
 const authenticationRouter = express.Router();
 
 
 authenticationRouter.get("/csrf", async (req, res) => {
-    res.json({csrfToken: generateToken(req, res)});
+    try {
+        const csrfToken = generateToken(req, res);
+        res.json({csrfToken});
+    } catch (error:any) {
+        res.status(400).json({ message: "Ошибка при генерации CSRF токена: " + error.message });
+    }
+
+
 });
 
-authenticationRouter.post("/registration", doubleCsrfProtection,async (req, res) => {
+authenticationRouter.post("/registration", doubleCsrfProtection, async (req, res) => {
     const {name, email, password} = req.body;
-
     try {
-        const newUser = await registrateUser({name, email, password});
+        await registrateUser({name, email, password});
         res.status(201).json({
-            message: "Пользователь успешно создан",
-            user: newUser
+            message: "Пользователь успешно создан и зарегистрирован"
         });
     } catch (error: any) {
         res.status(400).json({message: error.message});
     }
 });
 
-authenticationRouter.post("/signin", doubleCsrfProtection,async (req, res) => {
+authenticationRouter.post("/signin", doubleCsrfProtection, async (req, res) => {
     const {email, password} = req.body;
-
     try {
         const response = await signIn({email, password});
         res.status(201)
@@ -48,14 +53,14 @@ authenticationRouter.post("/signin", doubleCsrfProtection,async (req, res) => {
                 httpOnly: true
             })
             .json({
-                message: "Пользователь зарегистрирован"
+                message: "Пользователь авторизован"
             });
     } catch (error: any) {
         res.status(400).json({message: error.message});
     }
 });
 
-authenticationRouter.post("/refresh", doubleCsrfProtection, jwtUserRequestFilter, async (req, res) => {
+authenticationRouter.post("/refresh", jwtUserRequestFilter, doubleCsrfProtection, async (req, res) => {
 
     const token: string = req.cookies.refreshToken;
     try {
@@ -70,14 +75,14 @@ authenticationRouter.post("/refresh", doubleCsrfProtection, jwtUserRequestFilter
                 httpOnly: true
             })
             .json({
-                message: "Пользователь зарегистрирован. Токен успешнр обновлен"
+                message: "Токен успешно обновлен"
             });
     } catch (error: any) {
         res.status(400).json({message: error.message});
     }
 });
 
-authenticationRouter.post("/logout",doubleCsrfProtection, async (req, res) => {
+authenticationRouter.post("/logout", jwtUserRequestFilter, doubleCsrfProtection, async (req, res) => {
     try {
         res.status(201).clearCookie("accessToken").clearCookie("refreshToken").json({
             message: "Пользователь вышел из аккаунта"
@@ -87,7 +92,19 @@ authenticationRouter.post("/logout",doubleCsrfProtection, async (req, res) => {
     }
 });
 
-authenticationRouter.get("/:obj",doubleCsrfProtection, async (req, res) => {
+authenticationRouter.get("/allusers", jwtUserRequestFilter, async (req, res) => {
+    try {
+        const accounts = await getAllAccounts();
+        res.status(201).json({
+            message: "Список всех пользователей получен",
+            accounts: accounts
+        });
+    } catch (error: any) {
+        res.status(400).json({message: error.message});
+    }
+});
+
+authenticationRouter.get("/:obj", jwtAdminRequestFilter, async (req, res) => {
     const {obj} = req.params;
     try {
         const account = await getAccountByEmailOrId(obj);
@@ -100,21 +117,10 @@ authenticationRouter.get("/:obj",doubleCsrfProtection, async (req, res) => {
     }
 });
 
-authenticationRouter.get("/allusers",doubleCsrfProtection, async (req, res) => {
-    try {
-        const accounts = await getAllAccounts();
-        res.status(201).json({
-            message: "Список всех пользователей получен",
-            accounts: accounts
-        });
-    } catch (error: any) {
-        res.status(400).json({message: error.message});
-    }
-});
-
-authenticationRouter.delete("/:id",doubleCsrfProtection, async (req, res) => {
+authenticationRouter.delete("/:id",  jwtAdminRequestFilter,checkOwnerFilter,doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     try {
+        //   const objectId = new mongoose.Schema.Types.ObjectId(id);
         const account = await deleteAccountById(id);
         res.status(200).json({
             message: "Пользователь успешно удален",
@@ -125,7 +131,7 @@ authenticationRouter.delete("/:id",doubleCsrfProtection, async (req, res) => {
     }
 });
 
-authenticationRouter.put("/:id",doubleCsrfProtection, async (req, res) => {
+authenticationRouter.put("/:id", jwtUserRequestFilter, checkOwnerFilter, doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     const {newPassword} = req.body;
     try {

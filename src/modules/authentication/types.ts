@@ -10,16 +10,20 @@ export type UserData = AuthenticationData & {
 }
 
 export type User = UserData & {
-    role: string;
+    superUser: true
+    groups: GroupAccess
     _id: ObjectId
     lastPasswords: string[]
+    subscription: null
+    publicOffers: []
+    draftOffers: []
+
 }
 
 export type PublicUserData = {
     email: string;
     name: string;
     _id: ObjectId
-    role: string;
 }
 
 export type AuthenticationResult = {
@@ -36,8 +40,26 @@ export type CustomCookies = {
 
 export type JwtTokenPayload = {
     userId: string;
-    role: string;
 }
+
+export enum Roles  {
+    USER, MODERATOR, ADMIN
+}
+
+export type GroupAccess = {
+    id: string;
+    group_id: string;
+    role: Roles;
+}
+
+export type FilterResponse = {
+    response: boolean
+    error: string | undefined
+    id: string | undefined
+}
+
+
+
 
 
 

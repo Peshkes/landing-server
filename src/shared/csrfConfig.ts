@@ -4,15 +4,10 @@ import crypto from "crypto";
 
 const CSRF_TOKEN_SECRET = crypto.randomBytes(64).toString("hex");
 
-export const {generateToken, doubleCsrfProtection} = doubleCsrf({
+export const {generateToken, doubleCsrfProtection, invalidCsrfTokenError} = doubleCsrf({
     getSecret: () => CSRF_TOKEN_SECRET,
     size: 64,
     ignoredMethods: ["GET"],
-    getTokenFromRequest: (req) => req.headers["x-csrf-token"]
+    getTokenFromRequest: (req) => req.headers["x-csrf-token"],
+    cookieOptions:{}
 });
-
-// function doubleCsrfProtection(req:Request, res:Response, next:NextFunction) {
-//     const token = req.headers["x-csrf-token"];
-//     req.csrfToken = token;
-//     return originalDoubleCsrfProtection(req, res, next);
-// }

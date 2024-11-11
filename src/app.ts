@@ -6,21 +6,32 @@ import authenticationRouter from "./modules/authentication/routes/authentication
 import cookieParser from "cookie-parser";
 import {createAdminUser} from "./shared/InitializeDeafultUser";
 import mongoose from "mongoose";
+import {errorHandler} from "./shared/errorHandler";
 
 const app = express();
 
-//Database connection
-const dbURI = "mongodb://admin:HLK2gYEzad7hbmGe9DL@localhost:27018/mongo-landings-db";
-mongoose.connect(dbURI)
-    .then(() => console.log("MongoDB connected"))
-    .catch(err => console.error("MongoDB connection error:", err));
+//admin:HLK2gYEzad7hbmGe9DL@
 
+
+const connect = async () =>{
+
+    await mongoose.connect("mongodb://localhost:27017/mongo-landings-db")
+        .then(() => console.log("MongoDB connected"))
+        .catch(err => console.error("MongoDB connection error:", err));
+};
 
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+connect();
 createAdminUser();
+app.use((req,res, next) => {
+    console.log(req);
+    next();
+});
 app.use("/auth", authenticationRouter);
+app.use(errorHandler);
 export {app, mongoose} ;
+

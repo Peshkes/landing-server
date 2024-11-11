@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import {JwtTokenPayload} from "../modules/authentication/types";
-import UserModel from "../modules/authentication/models/userModel";
+
 
 
 const ACCESS_EXPIRATION_TIME = 300;
@@ -10,9 +10,9 @@ const ACCESS_TOKEN_SECRET = crypto.randomBytes(64).toString("hex");
 const REFRESH_TOKEN_SECRET = crypto.randomBytes(64).toString("hex");
 
 
-const generateToken = (_id: string, ACCESS_TOKEN_SECRET: string, expirationTime: number, role?: string) => {
+const generateToken = (_id: string, ACCESS_TOKEN_SECRET: string, expirationTime: number) => {
     return jwt.sign(
-        {userId: _id, role},
+        {userId: _id},
         ACCESS_TOKEN_SECRET,
         {expiresIn: expirationTime}
     );
@@ -24,21 +24,21 @@ const verifyToken = (token: string, isRefresh: boolean): JwtTokenPayload => {
     try {
         const jwtPayload = jwt.verify(token, key) as JwtTokenPayload;
         if (!jwtPayload || !jwtPayload.userId) throw new Error("В токене не хватает данных");
-        if (!checkUserExistsInToken(jwtPayload.userId)) throw new Error("Пользователь не найден");
+        //if (!checkUserExistsInToken(jwtPayload.userId)) throw new Error("Пользователь не найден");
         return jwtPayload;
     } catch (error: any) {
-        throw new Error("Токен не валиден: " + error.message);
+        throw new Error(isRefresh? "Refresh":"Access" + " token is not valid: " + error.message);
     }
 };
 
-const checkUserExistsInToken = async (userId: string) => {
-    const response = await UserModel.exists({userId});
-    return response;
-};
+// const checkUserExistsInToken = async (userId: string) => {
+//     const response = await UserModel.exists({userId});
+//     return response;
+// };
 
-const generateTokenPair = (_id: string, role: string) => {
+const generateTokenPair = (_id: string) => {
     return {
-        accessToken: generateToken(_id, ACCESS_TOKEN_SECRET, ACCESS_EXPIRATION_TIME, role),
+        accessToken: generateToken(_id, ACCESS_TOKEN_SECRET, ACCESS_EXPIRATION_TIME),
         refreshToken: generateToken(_id, REFRESH_TOKEN_SECRET, REFRESH_EXPIRATION_TIME)
     };
 };

@@ -1,8 +1,24 @@
 import mongoose from "mongoose";
+import {Roles} from "../types";
 
 
+const groupAccessSubSchema = new mongoose.Schema({
+    groupId: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: Number,
+        enum: Roles,
+        required: true
+    }
+});
 
 const userSchema = new mongoose.Schema({
+    superUser: {
+        type: Boolean,
+        required: false
+    },
     name: {
         type: String,
         required: true,
@@ -19,13 +35,34 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    roles: {
-        // type: mongoose.Schema.Types.ObjectId,
-        type: String,
-        ref: "Role",
+    lastPasswords: {
+        type: [String],
+        required: true
+    },
+    // role: {
+    //     type: Number,
+    //     enum: Roles,
+    //     required: true
+    // },
+    groups: {
+        type: groupAccessSubSchema,
+        required: false
+    },
+    subscription: {
+        type: String || null,
+        required: false
+    },
+    publicOffers: {
+        type: [String],
+        required: true
+    },
+    draftOffers: {
+        type: [String],
         required: true
     }
 });
+
+
 
 const UserModel = mongoose.model("User", userSchema);
 

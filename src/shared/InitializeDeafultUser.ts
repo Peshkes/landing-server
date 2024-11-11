@@ -5,7 +5,7 @@ import {Roles} from "../modules/authentication/types";
 
 export const createAdminUser = async () => {
     if (!await userModel.exists({name: "admin"})) {
-        const password = await bcrypt.hash("12345678v!", 10);
+        const password = await bcrypt.hash("12345678Vv!", 10);
         try {
             await UserModel.create({
                 superUser: true,

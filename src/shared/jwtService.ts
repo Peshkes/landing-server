@@ -2,13 +2,10 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import {JwtTokenPayload} from "../modules/authentication/types";
 
-
-
 const ACCESS_EXPIRATION_TIME = 300;
 const REFRESH_EXPIRATION_TIME = 900;
 const ACCESS_TOKEN_SECRET = crypto.randomBytes(64).toString("hex");
 const REFRESH_TOKEN_SECRET = crypto.randomBytes(64).toString("hex");
-
 
 const generateToken = (_id: string, ACCESS_TOKEN_SECRET: string, expirationTime: number) => {
     return jwt.sign(
@@ -17,7 +14,6 @@ const generateToken = (_id: string, ACCESS_TOKEN_SECRET: string, expirationTime:
         {expiresIn: expirationTime}
     );
 };
-
 
 const verifyToken = (token: string, isRefresh: boolean): JwtTokenPayload => {
     const key = isRefresh ? REFRESH_TOKEN_SECRET : ACCESS_TOKEN_SECRET;

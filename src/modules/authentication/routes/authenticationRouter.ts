@@ -8,9 +8,9 @@ import {
     registrateUser
 } from "../services/authenticationService";
 import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/jwtService";
-import {checkOwnerFilter, jwtAdminRequestFilter, jwtUserRequestFilter} from "../services/JwtRequestFilter";
+import {jwtAdminRequestFilter, jwtUserRequestFilter} from "../../../shared/middlewares/jwtRequestFilter";
 import {doubleCsrfProtection, generateToken} from "../../../shared/csrfConfig";
-
+import {checkOwnerFilter} from "../../../shared/middlewares/middlewares";
 
 
 const authenticationRouter = express.Router();
@@ -20,11 +20,9 @@ authenticationRouter.get("/csrf", async (req, res) => {
     try {
         const csrfToken = generateToken(req, res);
         res.json({csrfToken});
-    } catch (error:any) {
-        res.status(400).json({ message: "Ошибка при генерации CSRF токена: " + error.message });
+    } catch (error: any) {
+        res.status(400).json({message: "Ошибка при генерации CSRF токена: " + error.message});
     }
-
-
 });
 
 authenticationRouter.post("/registration", doubleCsrfProtection, async (req, res) => {
@@ -117,7 +115,7 @@ authenticationRouter.get("/:obj", jwtAdminRequestFilter, async (req, res) => {
     }
 });
 
-authenticationRouter.delete("/:id",  jwtAdminRequestFilter,checkOwnerFilter,doubleCsrfProtection, async (req, res) => {
+authenticationRouter.delete("/:id", jwtAdminRequestFilter, doubleCsrfProtection, checkOwnerFilter, async (req, res) => {
     const {id} = req.params;
     try {
         //   const objectId = new mongoose.Schema.Types.ObjectId(id);
@@ -131,7 +129,7 @@ authenticationRouter.delete("/:id",  jwtAdminRequestFilter,checkOwnerFilter,doub
     }
 });
 
-authenticationRouter.put("/:id", jwtUserRequestFilter, checkOwnerFilter, doubleCsrfProtection, async (req, res) => {
+authenticationRouter.put("/:id", jwtUserRequestFilter, doubleCsrfProtection, checkOwnerFilter, async (req, res) => {
     const {id} = req.params;
     const {newPassword} = req.body;
     try {

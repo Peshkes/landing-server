@@ -39,11 +39,6 @@ const userSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    // role: {
-    //     type: Number,
-    //     enum: Roles,
-    //     required: true
-    // },
     groups: {
         type: groupAccessSubSchema,
         required: false

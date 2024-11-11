@@ -27,10 +27,6 @@ app.use(cors());
 app.use(express.json());
 connect();
 createAdminUser();
-app.use((req,res, next) => {
-    console.log(req);
-    next();
-});
 app.use("/auth", authenticationRouter);
 app.use(errorHandler);
 export {app, mongoose} ;

@@ -10,14 +10,13 @@ export type UserData = AuthenticationData & {
 }
 
 export type User = UserData & {
-    superUser: true
+    superUser: boolean
     groups: GroupAccess
     _id: ObjectId
     lastPasswords: string[]
     subscription: null
     publicOffers: []
     draftOffers: []
-
 }
 
 export type PublicUserData = {
@@ -52,13 +51,12 @@ export type GroupAccess = {
     role: Roles;
 }
 
-export type FilterResponse = {
-    response: boolean
-    error: string | undefined
-    id: string | undefined
-}
+export type FilterResponse = User | ErrorResponse;
 
-
+export type ErrorResponse = {
+    message: string;
+    code: number;
+};
 
 
 

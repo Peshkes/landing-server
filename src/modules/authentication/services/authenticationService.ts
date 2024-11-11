@@ -5,9 +5,6 @@ import {signIn} from "./authenticationJWTService";
 import {AuthenticationResult, PublicUserData, Roles, User, UserData} from "../types";
 import mongoose from "mongoose";
 
-const regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-
 const registrateUser = async (userData: UserData): Promise<AuthenticationResult> => {
     try {
         const {name, email, password} = userData;
@@ -99,7 +96,7 @@ const changePassword = async (obj: string, newPassword: string): Promise<void> =
     }
 };
 
-const passwordIsValid = (password: string): boolean => regexp.test(password);
+const passwordIsValid = (password: string): boolean => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
 
 export {

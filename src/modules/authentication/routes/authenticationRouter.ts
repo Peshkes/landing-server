@@ -93,7 +93,7 @@ authenticationRouter.post("/logout", jwtUserRequestFilter, doubleCsrfProtection,
 authenticationRouter.get("/allusers", jwtUserRequestFilter, async (req, res) => {
     try {
         const accounts = await getAllAccounts();
-        res.status(201).json({
+        res.status(200).json({
             message: "Список всех пользователей получен",
             accounts: accounts
         });

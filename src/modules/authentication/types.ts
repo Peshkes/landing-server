@@ -51,13 +51,6 @@ export type GroupAccess = {
     role: Roles;
 }
 
-export type FilterResponse = User | ErrorResponse;
-
-export type ErrorResponse = {
-    message: string;
-    code: number;
-};
-
 
 
 

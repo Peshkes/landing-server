@@ -1,4 +1,3 @@
-
 import bcrypt from "bcryptjs";
 import UserModel from "../models/userModel";
 import {signIn} from "./authenticationJWTService";

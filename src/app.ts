@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import {createAdminUser} from "./shared/InitializeDeafultUser";
 import mongoose from "mongoose";
 import {errorHandler} from "./shared/errorHandler";
+import {jwtRequestFilter} from "./shared/middlewares/jwtRequestFilter";
 
 const app = express();
 
@@ -27,7 +28,10 @@ app.use(cors());
 app.use(express.json());
 connect();
 createAdminUser();
+
+app.use(jwtRequestFilter);
 app.use("/auth", authenticationRouter);
 app.use(errorHandler);
+
 export {app, mongoose} ;
 

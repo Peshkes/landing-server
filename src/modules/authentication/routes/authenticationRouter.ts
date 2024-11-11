@@ -8,9 +8,7 @@ import {
     registrateUser
 } from "../services/authenticationService";
 import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/jwtService";
-import {jwtAdminRequestFilter, jwtUserRequestFilter} from "../../../shared/middlewares/jwtRequestFilter";
 import {doubleCsrfProtection, generateToken} from "../../../shared/csrfConfig";
-import {checkOwnerFilter} from "../../../shared/middlewares/middlewares";
 
 
 const authenticationRouter = express.Router();
@@ -58,7 +56,7 @@ authenticationRouter.post("/signin", doubleCsrfProtection, async (req, res) => {
     }
 });
 
-authenticationRouter.post("/refresh", jwtUserRequestFilter, doubleCsrfProtection, async (req, res) => {
+authenticationRouter.post("/refresh", doubleCsrfProtection, async (req, res) => {
 
     const token: string = req.cookies.refreshToken;
     try {
@@ -80,7 +78,7 @@ authenticationRouter.post("/refresh", jwtUserRequestFilter, doubleCsrfProtection
     }
 });
 
-authenticationRouter.post("/logout", jwtUserRequestFilter, doubleCsrfProtection, async (req, res) => {
+authenticationRouter.post("/logout", doubleCsrfProtection, async (req, res) => {
     try {
         res.status(201).clearCookie("accessToken").clearCookie("refreshToken").json({
             message: "Пользователь вышел из аккаунта"
@@ -90,7 +88,7 @@ authenticationRouter.post("/logout", jwtUserRequestFilter, doubleCsrfProtection,
     }
 });
 
-authenticationRouter.get("/allusers", jwtUserRequestFilter, async (req, res) => {
+authenticationRouter.get("/allusers", doubleCsrfProtection, async (req, res) => {
     try {
         const accounts = await getAllAccounts();
         res.status(200).json({
@@ -102,7 +100,7 @@ authenticationRouter.get("/allusers", jwtUserRequestFilter, async (req, res) => 
     }
 });
 
-authenticationRouter.get("/:obj", jwtAdminRequestFilter, async (req, res) => {
+authenticationRouter.get("/:obj", doubleCsrfProtection, async (req, res) => {
     const {obj} = req.params;
     try {
         const account = await getAccountByEmailOrId(obj);
@@ -115,7 +113,7 @@ authenticationRouter.get("/:obj", jwtAdminRequestFilter, async (req, res) => {
     }
 });
 
-authenticationRouter.delete("/:id", jwtAdminRequestFilter, doubleCsrfProtection, checkOwnerFilter, async (req, res) => {
+authenticationRouter.delete("/:id", doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     try {
         //   const objectId = new mongoose.Schema.Types.ObjectId(id);
@@ -129,7 +127,7 @@ authenticationRouter.delete("/:id", jwtAdminRequestFilter, doubleCsrfProtection,
     }
 });
 
-authenticationRouter.put("/:id", jwtUserRequestFilter, doubleCsrfProtection, checkOwnerFilter, async (req, res) => {
+authenticationRouter.put("/:id", doubleCsrfProtection, async (req, res) => {
     const {id} = req.params;
     const {newPassword} = req.body;
     try {

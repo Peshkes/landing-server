@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     groups: {
-        type: groupAccessSubSchema,
+        type: [groupAccessSubSchema],
         required: false
     },
     subscription: {

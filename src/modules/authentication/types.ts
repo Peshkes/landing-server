@@ -45,12 +45,8 @@ export enum Roles  {
     USER, MODERATOR, ADMIN
 }
 
-export type GroupAccess = {
+export type GroupAccess = [{
     id: string;
     group_id: string;
     role: Roles;
-}
-
-
-
-
+}]

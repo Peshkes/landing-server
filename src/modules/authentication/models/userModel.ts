@@ -3,16 +3,14 @@ import {Roles} from "../types";
 
 
 const groupAccessSubSchema = new mongoose.Schema({
-    groupId: {
-        type: String,
-        required: true
-    },
     role: {
         type: Number,
         enum: Roles,
         required: true
     }
-});
+},
+{_id: false}
+);
 
 const userSchema = new mongoose.Schema({
     superUser: {
@@ -40,7 +38,8 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     groups: {
-        type: [groupAccessSubSchema],
+        type: Map,
+        of: groupAccessSubSchema,
         required: false
     },
     subscription: {
@@ -56,7 +55,6 @@ const userSchema = new mongoose.Schema({
         required: true
     }
 });
-
 
 
 const UserModel = mongoose.model("User", userSchema);

@@ -45,8 +45,4 @@ export enum Roles  {
     USER, MODERATOR, ADMIN
 }
 
-export type GroupAccess = [{
-    id: string;
-    group_id: string;
-    role: Roles;
-}]
+export type GroupAccess = Map<string, Roles>

@@ -9,5 +9,5 @@ export const {generateToken, doubleCsrfProtection, invalidCsrfTokenError} = doub
     size: 64,
     ignoredMethods: ["GET"],
     getTokenFromRequest: (req) => req.headers["x-csrf-token"],
-    cookieOptions:{}
+    cookieName: "__Host-psifi.x-csrf-token"
 });

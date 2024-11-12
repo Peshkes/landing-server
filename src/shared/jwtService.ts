@@ -20,17 +20,11 @@ const verifyToken = (token: string, isRefresh: boolean): JwtTokenPayload => {
     try {
         const jwtPayload = jwt.verify(token, key) as JwtTokenPayload;
         if (!jwtPayload || !jwtPayload.userId) throw new Error("В токене не хватает данных");
-        //if (!checkUserExistsInToken(jwtPayload.userId)) throw new Error("Пользователь не найден");
         return jwtPayload;
     } catch (error: any) {
         throw new Error(isRefresh? "Refresh":"Access" + " token is not valid: " + error.message);
     }
 };
-
-// const checkUserExistsInToken = async (userId: string) => {
-//     const response = await UserModel.exists({userId});
-//     return response;
-// };
 
 const generateTokenPair = (_id: string) => {
     return {

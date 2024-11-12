@@ -17,19 +17,14 @@ export const ownOffersAccessFilter: RequestHandler = async (req, res, next: Next
     return res.status(403).json("Доступ запрещен");
 };
 
-export const groupAccessFilterWrapper = (minRole: Roles): RequestHandler => {
-    return async (req, res, next: NextFunction) => {
-        await groupAccessFilter(req, res, next, minRole);
-    };
-};
-
 export const userGroupAccessFilter: RequestHandler = groupAccessFilterWrapper(Roles.USER);
 export const moderatorGroupAccessFilter: RequestHandler = groupAccessFilterWrapper(Roles.MODERATOR);
 export const adminGroupAccessFilter: RequestHandler = groupAccessFilterWrapper(Roles.ADMIN);
 
-function checkBasicAccess(res: any, next: NextFunction): void {
-    if (!res.locals.user) res.status(403).json("Пользователь не найден");
-    if (res.locals.user.superUser) return next();
+function groupAccessFilterWrapper (minRole: Roles): RequestHandler {
+    return async (req, res, next: NextFunction) => {
+        await groupAccessFilter(req, res, next, minRole);
+    };
 }
 
 async function groupAccessFilter(req: any, res: any, next: NextFunction, minRole: Roles) {
@@ -38,4 +33,9 @@ async function groupAccessFilter(req: any, res: any, next: NextFunction, minRole
     const group = res.locals.user.groups.find((item: any) => item.groupId === requestedId);
     if (group && group.role >= minRole) next();
     return res.status(403).json("Доступ запрещен");
+}
+
+function checkBasicAccess(res: any, next: NextFunction): void {
+    if (!res.locals.user) res.status(403).json("Пользователь не найден");
+    if (res.locals.user.superUser) return next();
 }

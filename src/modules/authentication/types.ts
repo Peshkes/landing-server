@@ -11,7 +11,6 @@ export type UserData = AuthenticationData & {
 
 export type User = UserData & {
     superUser: boolean
-    groups: GroupAccess
     _id: ObjectId
     lastPasswords: string[]
     subscription: null
@@ -41,8 +40,9 @@ export type JwtTokenPayload = {
     userId: string;
 }
 
-export enum Roles  {
-    USER, MODERATOR, ADMIN
+export enum Roles {
+    USER = 10, MODERATOR = 20, ADMIN = 30
 }
 
 export type GroupAccess = Map<string, Roles>
+

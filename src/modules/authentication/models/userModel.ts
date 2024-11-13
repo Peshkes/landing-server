@@ -1,16 +1,4 @@
 import mongoose from "mongoose";
-import {Roles} from "../types";
-
-
-const groupAccessSubSchema = new mongoose.Schema({
-    role: {
-        type: Number,
-        enum: Roles,
-        required: true
-    }
-},
-{_id: false}
-);
 
 const userSchema = new mongoose.Schema({
     superUser: {
@@ -37,14 +25,10 @@ const userSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    groups: {
-        type: Map,
-        of: groupAccessSubSchema,
-        required: false
-    },
     subscription: {
         type: String || null,
-        required: false
+        required: false,
+        ref: "Subscription"
     },
     publicOffers: {
         type: [String],

@@ -4,14 +4,18 @@ import {Roles} from "../types";
 const groupAccessSubSchema = new mongoose.Schema({
     account_id: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        ref: "User"
     },
     role: {
         type: Number,
         enum: Roles,
         required: true
     }
-});
+},
+{_id: false}
+);
 
 const groupAccessSchema = new mongoose.Schema({
     groups: {
@@ -23,8 +27,8 @@ const groupAccessSchema = new mongoose.Schema({
 {_id: false}
 );
 
-const GroupAccessSchema = mongoose.model("GroupAccessSchema", groupAccessSchema);
+const GroupAccessModel = mongoose.model("GroupAccess", groupAccessSchema);
 
-export default GroupAccessSchema;
+export default GroupAccessModel;
 
 

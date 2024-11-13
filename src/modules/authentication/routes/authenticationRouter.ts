@@ -3,7 +3,10 @@ import {refreshToken, signIn} from "../services/authenticationJWTService";
 import {changePassword, deleteAccountById, getAccountByEmailOrId, getAllAccounts, registrateUser} from "../services/authenticationService";
 import {ACCESS_EXPIRATION_TIME, REFRESH_EXPIRATION_TIME} from "../../../shared/jwtService";
 import {doubleCsrfProtection, generateToken} from "../../../shared/csrfConfig";
-import {ownerAccessFilter, superUserAccessFilter} from "../../../shared/middlewares/accessFilter";
+import {
+    ownerAccessFilter,
+    superUserAccessFilter
+} from "../../../shared/middlewares/accessFilter";
 
 const authenticationRouter = express.Router();
 

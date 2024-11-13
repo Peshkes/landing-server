@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-
-
 const salesTierSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -30,7 +28,6 @@ const salesTierSchema = new mongoose.Schema({
     }
 });
 
+const SalesTierModel = mongoose.model("SalesTier", salesTierSchema);
 
-const SalesTierSchema = mongoose.model("SalesTier", salesTierSchema);
-
-export default SalesTierSchema;
+export default SalesTierModel;

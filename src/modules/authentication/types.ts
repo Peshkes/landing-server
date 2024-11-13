@@ -40,6 +40,11 @@ export type JwtTokenPayload = {
     userId: string;
 }
 
+export type AccessPayload = {
+    accountId: string;
+    role: Roles
+}
+
 export enum Roles {
     USER = 10, MODERATOR = 20, ADMIN = 30
 }

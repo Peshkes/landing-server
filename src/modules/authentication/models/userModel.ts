@@ -26,17 +26,19 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     subscription: {
-        type: String || null,
-        required: false,
+        type: String,
+        required: true,
         ref: "Subscription"
     },
-    publicOffers: {
+    public_offers: {
         type: [String],
-        required: true
+        required: true,
+        ref: "PublicOffer"
     },
-    draftOffers: {
+    draft_offers: {
         type: [String],
-        required: true
+        required: true,
+        ref: "DraftOffer"
     }
 });
 

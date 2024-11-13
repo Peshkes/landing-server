@@ -1,12 +1,4 @@
 import mongoose from "mongoose";
-import any = jasmine.any;
-
-
-const Block = new mongoose.Schema({
-    block: {
-        type: any
-    }
-});
 
 const publicOffer = new mongoose.Schema({
     name: {
@@ -14,7 +6,7 @@ const publicOffer = new mongoose.Schema({
         required: true
     },
     body: {
-        type: [Block],
+        type: [mongoose.Schema.Types.Mixed],
         required: true
     },
     publication_date: {
@@ -28,8 +20,6 @@ const publicOffer = new mongoose.Schema({
 });
 
 
-const PublicOffer = mongoose.model("PublicOffer", publicOffer);
+const PublicOfferModel = mongoose.model("PublicOffer", publicOffer);
 
-export default PublicOffer;
-
-
+export default PublicOfferModel;

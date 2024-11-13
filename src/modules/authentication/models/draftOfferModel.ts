@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
-import any = jasmine.any;
 
-const Block = new mongoose.Schema({
-    block: {
-        type: any
-    }
-});
 
 const draftOffer = new mongoose.Schema({
     name: {
@@ -13,7 +7,7 @@ const draftOffer = new mongoose.Schema({
         required: true
     },
     body: {
-        type: [Block],
+        type: [mongoose.Schema.Types.Mixed],
         required: true
     }
 });

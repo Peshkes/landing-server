@@ -11,9 +11,6 @@ import {jwtRequestFilter} from "./shared/middlewares/jwtRequestFilter";
 
 const app = express();
 
-//admin:HLK2gYEzad7hbmGe9DL@
-
-
 const connect = async () =>{
 
     await mongoose.connect("mongodb://localhost:27017/mongo-landings-db")
@@ -35,4 +32,3 @@ app.use("/auth", authenticationRouter);
 app.use(errorHandler);
 
 export {app, mongoose} ;
-

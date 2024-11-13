@@ -20,7 +20,8 @@ const paymentsSubSchema = new mongoose.Schema({
 const subscriptionSchema = new mongoose.Schema({
     tier_id: {
         type: String,
-        required: true
+        required: true,
+        ref: "SalesTier"
     },
     start_date: {
         type: Date,
@@ -36,12 +37,11 @@ const subscriptionSchema = new mongoose.Schema({
     },
     payments: {
         type: [paymentsSubSchema],
-        required: true,
-        ref: "Payment"
+        required: true
     }
 });
 
 
-const SubscriptionSchema = mongoose.model("Subscription", subscriptionSchema);
+const SubscriptionModel = mongoose.model("Subscription", subscriptionSchema);
 
-export default SubscriptionSchema;
+export default SubscriptionModel;

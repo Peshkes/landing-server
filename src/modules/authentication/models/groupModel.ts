@@ -9,16 +9,18 @@ const groupSchema = new mongoose.Schema({
     },
     public_offers: {
         type: [String],
-        required: true
+        required: true,
+        ref: "PublicOffer"
     },
     draft_offers: {
         type: [String],
-        required: true
+        required: true,
+        ref: "DraftOffer"
     }
 });
 
-const GroupSchema = mongoose.model("GroupSchema", groupSchema);
+const GroupModel = mongoose.model("Group", groupSchema);
 
-export default GroupSchema;
+export default GroupModel;
 
 

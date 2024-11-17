@@ -13,8 +13,8 @@ const draftOffer = new mongoose.Schema({
 });
 
 
-const DraftOffer = mongoose.model("DraftOffer", draftOffer);
+const DraftOfferModel = mongoose.model("DraftOffer", draftOffer);
 
-export default DraftOffer;
+export default DraftOfferModel;
 
 

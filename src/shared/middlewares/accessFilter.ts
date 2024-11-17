@@ -1,6 +1,6 @@
 import {NextFunction, RequestHandler, Response, Request} from "express";
 import {Roles} from "../../modules/authentication/types";
-import GroupAccessModel from "../../modules/authentication/models/groupAccessModel";
+import GroupAccessModel from "../../modules/group/models/groupAccessModel";
 
 export const superUserAccessFilter = (req: Request, res: Response, next: NextFunction) => {
     if (res.locals.user.superUser)

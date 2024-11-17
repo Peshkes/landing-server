@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {Roles} from "../types";
+import {Roles} from "../../authentication/types";
 
 const groupAccessSubSchema = new mongoose.Schema({
     account_id: {

@@ -9,7 +9,7 @@ const salesTierSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    amount: {
+    price: {
         type: Number,
         required: true
     },
@@ -18,7 +18,7 @@ const salesTierSchema = new mongoose.Schema({
         required: true,
         ref: "BaseTier"
     },
-    sale_amount: {
+    sales_price: {
         type: Number,
         required: false
     },

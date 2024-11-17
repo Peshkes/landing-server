@@ -3,11 +3,14 @@ import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import authenticationRouter from "./modules/authentication/routes/authenticationRouter";
+import draftOfferRouter from "./modules/offer/routes/draftOfferRouter";
 import cookieParser from "cookie-parser";
 import {createAdminUser} from "./shared/InitializeDeafultUser";
 import mongoose from "mongoose";
 import {errorHandler} from "./shared/errorHandler";
 import {jwtRequestFilter} from "./shared/middlewares/jwtRequestFilter";
+import salesTierRouter from "./modules/tier/routs/salesTierRouter";
+import baseTierRouter from "./modules/tier/routs/baseTierRouter";
 
 const app = express();
 
@@ -29,6 +32,9 @@ createAdminUser();
 
 app.use(jwtRequestFilter);
 app.use("/auth", authenticationRouter);
+app.use("/offer", draftOfferRouter);
+app.use("/sales_tier", salesTierRouter);
+app.use("/base_tier", baseTierRouter);
 app.use(errorHandler);
 
 export {app, mongoose} ;

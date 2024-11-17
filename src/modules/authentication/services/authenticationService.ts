@@ -48,7 +48,6 @@ const getAllAccounts = async (): Promise<PublicUserData[]> => {
     try {
         const accounts: User[] = await UserModel.find();
         return accounts.map(user => ({
-            superUser: true,
             email: user.email,
             name: user.name,
             _id: user._id,

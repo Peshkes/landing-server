@@ -94,6 +94,8 @@ const changePassword = async (obj: string, newPassword: string): Promise<void> =
     }
 };
 
+
+
 const passwordIsValid = (password: string): boolean => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
 

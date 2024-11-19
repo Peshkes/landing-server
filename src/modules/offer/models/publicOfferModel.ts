@@ -13,6 +13,10 @@ const publicOffer = new mongoose.Schema({
         type: Date,
         required: true
     },
+    update_date: {
+        type: Date,
+        required: false
+    },
     expiration_date: {
         type: Date,
         required: true

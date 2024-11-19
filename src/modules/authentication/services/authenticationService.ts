@@ -3,6 +3,9 @@ import UserModel from "../models/userModel";
 import {signIn} from "./authenticationJWTService";
 import {AuthenticationResult, PublicUserData, Roles, User, UserData} from "../types";
 import mongoose from "mongoose";
+import {Group} from "../../group/groupTypes";
+import GroupModel from "../../group/models/groupModel";
+import {deleteDraftOfferById, deletePublicOfferById} from "../../offer/services/offerService";
 
 const registrateUser = async (userData: UserData): Promise<AuthenticationResult> => {
     try {
@@ -94,7 +97,24 @@ const changePassword = async (obj: string, newPassword: string): Promise<void> =
     }
 };
 
+const copyOffersToGroup = async (publicOffersToMove: string[], draftOffersToMove: string[], groupId: string) => {
+    try {
+        const group:Group | null = await GroupModel.findById(groupId);
+        if (!group) throw new Error("Группы с таким ID: " + groupId + " не найдено");
+        publicOffersToMove && group.publicOffers.push(... publicOffersToMove);
+        draftOffersToMove && group.publicOffers.push(... draftOffersToMove);
+    } catch (error: any) {
+        throw new Error(`Ошибка при добавлении коммерческих предложений в группу: ${error.message}`);
+    }
+};
 
+const deleterArrayOfOffers = async (offersToDelete: string[], isPublic:boolean) => {
+    try {
+        offersToDelete.forEach(async id => isPublic ? await deletePublicOfferById(id) : await deleteDraftOfferById(id));
+    } catch (error: any) {
+        throw new Error(`Ошибка при удалении коммерческих предложений: ${error.message}`);
+    }
+};
 
 const passwordIsValid = (password: string): boolean => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
@@ -104,7 +124,9 @@ export {
     getAccountByEmailOrId,
     getAllAccounts,
     deleteAccountById,
-    changePassword
+    changePassword,
+    copyOffersToGroup,
+    deleterArrayOfOffers
 };
 
 

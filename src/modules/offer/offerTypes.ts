@@ -12,3 +12,4 @@ export type PublicOffer = DraftOffer & {
     expiration_date: Date
     update_date?: Date
 }
+

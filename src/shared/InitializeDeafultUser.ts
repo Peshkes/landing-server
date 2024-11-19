@@ -14,7 +14,7 @@ export const createAdminUser = async () => {
                 password: password,
                 role: Roles.ADMIN,
                 lastPasswords: [],
-                subscription: null,
+                subscription: "admin",
                 publicOffers: [],
                 draftOffers: []
             });

@@ -14,8 +14,8 @@ export type User = UserData & {
     _id: ObjectId
     lastPasswords: string[]
     subscription: null
-    publicOffers: []
-    draftOffers: []
+    publicOffers: string[]
+    draftOffers: string[]
 }
 
 export type PublicUserData = {
@@ -47,6 +47,11 @@ export type AccessPayload = {
 
 export enum Roles {
     USER = 10, MODERATOR = 20, ADMIN = 30
+}
+
+export type MoveOffersRequest = {
+    publicOffersToMove: string[];
+    draftOffersToMove: string[];
 }
 
 export type GroupAccess = Map<string, Roles>

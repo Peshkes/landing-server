@@ -1,8 +1,8 @@
 import express from "express";
 import {
-    addNewOffer,
-    deleteOfferById,
-    getAllOffers,
+    addNewOffer, deleteDraftOfferById,
+    deletePublicOfferById, getAllDraftOffers,
+    getAllPublicOffers,
     getOfferById,
     publicateOffer,
     updateOfferById
@@ -11,10 +11,9 @@ import {doubleCsrfProtection} from "../../../shared/csrfConfig";
 import {ownerAccessFilter, superUserAccessFilter} from "../../../shared/middlewares/accessFilter";
 
 
+const offerRouter = express.Router();
 
-const draftOfferRouter = express.Router();
-
-draftOfferRouter.post("", async (req, res) => {
+offerRouter.post("", async (req, res) => {
     const {name, body} = req.body;
     try {
         const offer = addNewOffer({name, body});
@@ -28,9 +27,9 @@ draftOfferRouter.post("", async (req, res) => {
 });
 
 
-draftOfferRouter.get("", doubleCsrfProtection, superUserAccessFilter, async (_, res) => {
+offerRouter.get("/all_draft", doubleCsrfProtection, superUserAccessFilter, async (_, res) => {
     try {
-        const offers = await getAllOffers();
+        const offers = await getAllDraftOffers();
         res.status(200).json({
             message: "Список всех коммерческих предложений получен",
             offers: offers
@@ -40,7 +39,19 @@ draftOfferRouter.get("", doubleCsrfProtection, superUserAccessFilter, async (_, 
     }
 });
 
-draftOfferRouter.get("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+offerRouter.get("/all_public", doubleCsrfProtection, superUserAccessFilter, async (_, res) => {
+    try {
+        const offers = await getAllPublicOffers();
+        res.status(200).json({
+            message: "Список всех коммерческих предложений получен",
+            offers: offers
+        });
+    } catch (error: any) {
+        res.status(400).json({message: error.message});
+    }
+});
+
+offerRouter.get("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
     const {id} = req.params;
     try {
         const offer = await getOfferById(id);
@@ -53,10 +64,10 @@ draftOfferRouter.get("/:id", doubleCsrfProtection, ownerAccessFilter, async (req
     }
 });
 
-draftOfferRouter.delete("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+offerRouter.delete("/public/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
     const {id} = req.params;
     try {
-        const account = await deleteOfferById(id);
+        const account = await deletePublicOfferById(id);
         res.status(200).json({
             message: "Коммерческое предложение успешно удалено",
             offer: account
@@ -66,11 +77,22 @@ draftOfferRouter.delete("/:id", doubleCsrfProtection, ownerAccessFilter, async (
     }
 });
 
-draftOfferRouter.put("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+offerRouter.delete("/draft/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
     const {id} = req.params;
-    const newOffer = req.body;
     try {
-        await updateOfferById(id, newOffer);
+        const account = await deleteDraftOfferById(id);
+        res.status(200).json({
+            message: "Коммерческое предложение успешно удалено",
+            offer: account
+        });
+    } catch (error: any) {
+        res.status(400).json({message: error.message});
+    }
+});
+
+offerRouter.put("", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+    try {
+        await updateOfferById(req.body);
         res.status(200).json({
             message: "Коммерческое предложение успешно изменено"
         });
@@ -79,13 +101,11 @@ draftOfferRouter.put("/:id", doubleCsrfProtection, ownerAccessFilter, async (req
     }
 });
 
-draftOfferRouter.post("/:id/:expiration_date", async (req, res) => {
-    const {id, expiration_date} = req.params;
-
+offerRouter.post("/publicate", async (req, res) => {
     try {
-        const offer = publicateOffer(id,new Date(expiration_date));
+        const offer = publicateOffer(req.body);
         res.status(200).json({
-            message: "Коммерческое предложение создано",
+            message: "Коммерческое предложение опубликовано",
             offer: offer
         });
     } catch (error: any) {
@@ -93,4 +113,5 @@ draftOfferRouter.post("/:id/:expiration_date", async (req, res) => {
     }
 });
 
-export default draftOfferRouter;
+
+export default offerRouter;

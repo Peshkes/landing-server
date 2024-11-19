@@ -1,7 +1,6 @@
 import DraftOfferModel from "../models/draftOfferModel";
 import PublicOfferModel from "../models/publicOfferModel";
 import {DraftOffer, PublicOffer} from "../offerTypes";
-import {ObjectId} from "mongoose";
 
 
 const addNewOffer = async (offer: DraftOffer) => {
@@ -28,76 +27,102 @@ const getOfferById = async (id: string): Promise<DraftOffer> => {
     }
 };
 
-const getAllOffers = async (): Promise<DraftOffer[]> => {
+const getAllDraftOffers = async (): Promise<DraftOffer[]> => {
     try {
-        const offers: DraftOffer[] = await DraftOfferModel.find();
-        return offers.map(offer => ({
-            name: offer.name,
-            body: offer.body
-        }));
+        return await DraftOfferModel.find();
     } catch (error: any) {
         throw new Error(`Ошибка при получении списка коммерческих предложений: ${error.message}`);
     }
 };
 
-const deleteOfferById = async (id: string): Promise<DraftOffer> => {
+const getAllPublicOffers = async (): Promise<PublicOffer[]> => {
     try {
-        const offer: DraftOffer | null = await DraftOfferModel.findByIdAndDelete(id);
+        return await PublicOfferModel.find();
+    } catch (error: any) {
+        throw new Error(`Ошибка при получении списка коммерческих предложений: ${error.message}`);
+    }
+};
+
+const deletePublicOfferById = async (id: string): Promise<PublicOffer> => {
+    try {
+        const offer: PublicOffer | null = await PublicOfferModel.findByIdAndDelete(id);
         if (!offer) throw new Error("Коммерческого предложения с таким ID: " + id + " не найдено");
-        return {name: offer.name, body: offer.body, _id: offer._id};
+        return offer;
     } catch (error: any) {
         throw new Error(`Ошибка при удалении коммерческих предложений: ${error.message}`);
     }
 };
 
-const updateOfferById = async (id: string | null, newOffer: DraftOffer) => {
+const deleteDraftOfferById = async (id: string): Promise<DraftOffer> => {
     try {
-        let offer: DraftOffer | null;
-        if (id) {
-            offer = await DraftOfferModel.findById(id);
-            if (!offer)
-                return await addNewOffer(newOffer);
-        } else
+        const offer: DraftOffer | null = await DraftOfferModel.findByIdAndDelete(id);
+        if (!offer) throw new Error("Коммерческого предложения с таким ID: " + id + " не найдено");
+        return offer;
+    } catch (error: any) {
+        throw new Error(`Ошибка при удалении коммерческих предложений: ${error.message}`);
+    }
+};
+
+const updateOfferById = async (newOffer: DraftOffer) => {
+    try {
+        const {name, body, _id} = newOffer;
+        if (!_id || !await DraftOfferModel.findByIdAndUpdate(_id, {name, body})) {
             return await addNewOffer(newOffer);
-        const {name, body} = newOffer;
-        await DraftOfferModel.findByIdAndUpdate(id, {name, body});
+        }
     } catch (error: any) {
         throw new Error(`Ошибка при обновлении коммерчеого предложения: ${error.message}`);
     }
 };
 
+// const publicateOffer = async (offerToPublicate: PublicOffer) => {
+//     try {
+//         const {name, body, _id} = offerToPublicate;
+//         if (_id) {
+//             const draftOffer: DraftOffer | null = await DraftOfferModel.findById(_id);
+//             if (!draftOffer) {
+//                 const publicOffer: PublicOffer | null = await PublicOfferModel.findById(_id);
+//                 if (!publicOffer) throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${_id}`);
+//                 await PublicOfferModel.findByIdAndUpdate(_id, {name, body, update_date: new Date(Date.now())});
+//             } else {
+//                 await saveOfferToPublicRepo(offerToPublicate);
+//             }
+//         } else {
+//             await saveOfferToPublicRepo(offerToPublicate);
+//         }
+//     } catch (error: any) {
+//         throw new Error(`Ошибка при публикации коммерчеого предложения: ${error.message}`);
+//     }
+// };
 const publicateOffer = async (offerToPublicate: PublicOffer) => {
     try {
-        const {name, body, _id: id = null} = offerToPublicate;
-        if (id) {
-            const draftOffer: DraftOffer | null = await DraftOfferModel.findById(id);
-            if (!draftOffer) {
-                const publicOffer: PublicOffer | null = await PublicOfferModel.findById(id);
-                if (!publicOffer) throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${id}`);
-                await PublicOfferModel.findByIdAndUpdate(id, {name, body, update_date: new Date(Date.now())});
-            } else {
-                await saveOfferToPublicRepo(offerToPublicate);
-            }
-        } else {
-            await saveOfferToPublicRepo(offerToPublicate);
+        const {name, body, _id} = offerToPublicate;
+        if (!_id || await DraftOfferModel.findById(_id)) {
+            return await saveOfferToPublicRepo(offerToPublicate);
         }
+        if (_id && !await PublicOfferModel.findByIdAndUpdate(_id, {name, body, update_date: new Date(Date.now())}))
+            throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${_id}`);
     } catch (error: any) {
         throw new Error(`Ошибка при публикации коммерчеого предложения: ${error.message}`);
     }
 };
 
 const saveOfferToPublicRepo = async (offerToPublicate: PublicOffer) => {
-    const {name, body, _id: id = null, expiration_date} = offerToPublicate;
+    const {name, body, _id, expiration_date} = offerToPublicate;
     const newPublicOffer = new PublicOfferModel({
-        name, body, publication_date: new Date(Date.now()), expiration_date, id
+        name, body, publication_date: new Date(Date.now()), expiration_date, _id
     });
     await newPublicOffer.save();
-    id && await DraftOfferModel.findByIdAndDelete(id);
+    _id && await DraftOfferModel.findByIdAndDelete(_id);
 };
 
-// const moveOffersToGroup = async (offersToMove: PublicOffer[] | DraftOffer[], groupId: string) => {
-//
-// };
 
-
-export {addNewOffer, getOfferById, getAllOffers, deleteOfferById, updateOfferById, publicateOffer};
+export {
+    addNewOffer,
+    getOfferById,
+    getAllDraftOffers,
+    getAllPublicOffers,
+    deletePublicOfferById,
+    deleteDraftOfferById,
+    updateOfferById,
+    publicateOffer
+};

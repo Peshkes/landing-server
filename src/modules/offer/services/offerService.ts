@@ -67,22 +67,22 @@ const updateOfferById = async (id: string | null, newOffer: DraftOffer) => {
 };
 
 const publicateOffer = async (offerToPublicate: PublicOffer) => {
-    const {name, body, _id: id = null} = offerToPublicate;
-    if (id) {
-        const draftOffer: DraftOffer | null = await DraftOfferModel.findById(id);
-        if (!draftOffer) {
-            const publicOffer: PublicOffer | null = await PublicOfferModel.findById(id);
-            if (!publicOffer) throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${id}`);
-            try {
+    try {
+        const {name, body, _id: id = null} = offerToPublicate;
+        if (id) {
+            const draftOffer: DraftOffer | null = await DraftOfferModel.findById(id);
+            if (!draftOffer) {
+                const publicOffer: PublicOffer | null = await PublicOfferModel.findById(id);
+                if (!publicOffer) throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${id}`);
                 await PublicOfferModel.findByIdAndUpdate(id, {name, body, update_date: new Date(Date.now())});
-            } catch (error: any) {
-                throw new Error(`Ошибка при публикации коммерчеого предложения: ${error.message}`);
+            } else {
+                await saveOfferToPublicRepo(offerToPublicate);
             }
         } else {
             await saveOfferToPublicRepo(offerToPublicate);
         }
-    } else {
-        await saveOfferToPublicRepo(offerToPublicate);
+    } catch (error: any) {
+        throw new Error(`Ошибка при публикации коммерчеого предложения: ${error.message}`);
     }
 };
 

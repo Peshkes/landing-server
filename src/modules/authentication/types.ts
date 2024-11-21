@@ -54,5 +54,20 @@ export type MoveOffersRequest = {
     draftOffersToMove: string[];
 }
 
+export type EmailToSend = {
+    from: string | "no_reply@snapitch.com";
+    to: string;
+    subject: string;
+    text: string;
+    link?: string
+    html: string;
+}
+
+export type ResetPasswordObject = {
+    userId: string;
+    token: string;
+    newPassword: string;
+}
+
 export type GroupAccess = Map<string, Roles>
 

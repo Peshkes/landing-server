@@ -5,7 +5,7 @@ import {
     deleteAccountById,
     deleterArrayOfOffers,
     getAccountByEmailOrId,
-    getAllAccounts
+    getAllAccounts, resetPassword, resetPasswordRequest
 } from "../services/authenticationService";
 import {doubleCsrfProtection} from "../../../shared/csrfConfig";
 import {ownerAccessFilter, superUserAccessFilter} from "../../../shared/middlewares/accessFilter";
@@ -59,6 +59,31 @@ accountRouter.put("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, r
         await changePassword(id, newPassword);
         res.status(200).json({
             message: "Пароль изменен"
+        });
+    } catch (error: any) {
+        res.status(400).json({message: error.message});
+    }
+});
+
+accountRouter.put("/reset_password", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+    const {email} = req.params;
+    try {
+        await resetPasswordRequest(email);
+        res.status(200).json({
+            message: "На вашу почту выслано сообщение с сылкой для смены пароля"
+        });
+    } catch (error: any) {
+        res.status(400).json({message: error.message});
+    }
+});
+
+accountRouter.put("/reset_password/:userId/:token/", async (req, res) => {
+    const {userId, token} = req.params;
+    const {newPassword} = req.body;
+    try {
+        await resetPassword({userId, token, newPassword});
+        res.status(200).json({
+            message: "Пароль успешно изменен"
         });
     } catch (error: any) {
         res.status(400).json({message: error.message});

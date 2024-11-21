@@ -65,7 +65,7 @@ const deleteDraftOfferById = async (id: string): Promise<DraftOffer> => {
 
 const updateOfferById = async (newOffer: DraftOffer) => {
     try {
-        const {name, body, _id} = newOffer;
+        const {name, body, _id = null} = newOffer;
         if (!_id || !await DraftOfferModel.findByIdAndUpdate(_id, {name, body})) {
             return await addNewOffer(newOffer);
         }
@@ -74,29 +74,11 @@ const updateOfferById = async (newOffer: DraftOffer) => {
     }
 };
 
-// const publicateOffer = async (offerToPublicate: PublicOffer) => {
-//     try {
-//         const {name, body, _id} = offerToPublicate;
-//         if (_id) {
-//             const draftOffer: DraftOffer | null = await DraftOfferModel.findById(_id);
-//             if (!draftOffer) {
-//                 const publicOffer: PublicOffer | null = await PublicOfferModel.findById(_id);
-//                 if (!publicOffer) throw new Error(`Ошибка при обновлении публикации предложения: некорректнвый ID ${_id}`);
-//                 await PublicOfferModel.findByIdAndUpdate(_id, {name, body, update_date: new Date(Date.now())});
-//             } else {
-//                 await saveOfferToPublicRepo(offerToPublicate);
-//             }
-//         } else {
-//             await saveOfferToPublicRepo(offerToPublicate);
-//         }
-//     } catch (error: any) {
-//         throw new Error(`Ошибка при публикации коммерчеого предложения: ${error.message}`);
-//     }
-// };
+
 const publicateOffer = async (offerToPublicate: PublicOffer) => {
     try {
-        const {name, body, _id} = offerToPublicate;
-        if (!_id || await DraftOfferModel.findById(_id)) {
+        const {name, body, _id = null} = offerToPublicate;
+        if (!_id || await DraftOfferModel.findByIdAndDelete(_id)) {
             return await saveOfferToPublicRepo(offerToPublicate);
         }
         if (_id && !await PublicOfferModel.findByIdAndUpdate(_id, {name, body, update_date: new Date(Date.now())}))
@@ -112,7 +94,6 @@ const saveOfferToPublicRepo = async (offerToPublicate: PublicOffer) => {
         name, body, publication_date: new Date(Date.now()), expiration_date, _id
     });
     await newPublicOffer.save();
-    _id && await DraftOfferModel.findByIdAndDelete(_id);
 };
 
 

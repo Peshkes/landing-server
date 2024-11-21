@@ -64,6 +64,7 @@ offerRouter.get("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res
     }
 });
 
+//TODO move account
 offerRouter.delete("/public/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
     const {id} = req.params;
     try {
@@ -76,7 +77,7 @@ offerRouter.delete("/public/:id", doubleCsrfProtection, ownerAccessFilter, async
         res.status(400).json({message: error.message});
     }
 });
-
+//TODO move account
 offerRouter.delete("/draft/:id", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
     const {id} = req.params;
     try {

@@ -8,7 +8,11 @@ import {
     getAllAccounts, resetPassword, resetPasswordRequest
 } from "../services/authenticationService";
 import {doubleCsrfProtection} from "../../../shared/csrfConfig";
-import {ownerAccessFilter, superUserAccessFilter} from "../../../shared/middlewares/accessFilter";
+import {
+    ownerAccessFilter,
+    superUserAccessFilter,
+    userGroupAccessFilter
+} from "../../../shared/middlewares/accessFilter";
 import {MoveOffersRequest} from "../types";
 
 const accountRouter = express.Router();
@@ -65,7 +69,7 @@ accountRouter.put("/:id", doubleCsrfProtection, ownerAccessFilter, async (req, r
     }
 });
 
-accountRouter.put("/reset_password", doubleCsrfProtection, ownerAccessFilter, async (req, res) => {
+accountRouter.put("/reset_password", doubleCsrfProtection, async (req, res) => {
     const {email} = req.params;
     try {
         await resetPasswordRequest(email);
@@ -77,7 +81,7 @@ accountRouter.put("/reset_password", doubleCsrfProtection, ownerAccessFilter, as
     }
 });
 
-accountRouter.put("/reset_password/:userId/:token/", async (req, res) => {
+accountRouter.put("/reset_password/:userId/:token/",doubleCsrfProtection, async (req, res) => {
     const {userId, token} = req.params;
     const {newPassword} = req.body;
     try {
@@ -90,7 +94,7 @@ accountRouter.put("/reset_password/:userId/:token/", async (req, res) => {
     }
 });
 
-accountRouter.put("/copy/:group_id", async (req, res) => {
+accountRouter.put("/copy/:group_id",doubleCsrfProtection, ownerAccessFilter, userGroupAccessFilter, async (req, res) => {
     const {group_id} = req.params;
     const {publicOffersToMove, draftOffersToMove} = req.body;
     try {
@@ -103,7 +107,7 @@ accountRouter.put("/copy/:group_id", async (req, res) => {
     }
 });
 
-accountRouter.put("/copy_and_delete/:group_id", async (req, res) => {
+accountRouter.put("/move/:group_id",doubleCsrfProtection, ownerAccessFilter, userGroupAccessFilter, async (req, res) => {
     const {group_id} = req.params;
     const {publicOffersToMove, draftOffersToMove} = req.body as MoveOffersRequest;
     try {

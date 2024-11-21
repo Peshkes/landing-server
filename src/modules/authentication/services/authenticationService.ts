@@ -119,7 +119,7 @@ const resetPasswordRequest = async (email: string): Promise<string> => {
         createdAt: Date.now()
     }).save();
 
-    const link = `localhost:27000/account/reset_password/${resetToken}`;
+    const link = `localhost:27000/account/reset_password/${existingUser._id}/${resetToken}`;
     const emailToSend: EmailToSend = {
         from: "no_reply@snapitch.com",
         to: "dioujikov@gmail.com",
